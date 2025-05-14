@@ -7,6 +7,8 @@ import CampaignDetails from "./component/CampaignDetails";
 import AllCampaigns from "./component/AllCampaigns";
 import CreateCampaign from "./component/CreateCampaign";
 
+// bla blabla
+
 export default function App() {
   return (
     <Router>
