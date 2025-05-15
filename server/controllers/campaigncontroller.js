@@ -16,6 +16,66 @@ exports.createCampaign = async (req, res) => {
     res.status(201).json(campaign);
 };
 
+
+exports.updateCampaignStatus = async (req, res) => {
+    try {
+        const { status } = req.body;
+        const campaign = await Campaign.findByIdAndUpdate(
+            req.params.id,
+            { status: status },
+            { new: true, runValidators: true }
+        );
+
+        if (!campaign) {
+            return res.status(404).json({ message: "Campaign not found" });
+        }
+
+        res.json(campaign);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to update campaign status", details: error.message });
+    }
+};
+
+exports.updateExpiredCampaigns = async () => {
+    try {
+        const now = new Date();
+
+        // Find campaigns that are either active or pending and have a deadline in the past
+        const campaignsToUpdate = await Campaign.find({
+            $or: [{ status: "active" }, { status: "pending" }],
+            deadline: { $lt: now },
+        });
+
+        for (const campaign of campaignsToUpdate) {
+            if (campaign.raisedAmount >= campaign.targetAmount) {
+                campaign.status = "successful";
+            } else {
+                campaign.status = "failed";
+            }
+            await campaign.save();
+            console.log(
+                `Campaign "${campaign.title}" status updated to "${campaign.status}"`
+            );
+        }
+
+        // Find campaigns that are not successful and deadline is in future
+        const campaignsToActivate = await Campaign.find({
+            status: "pending",
+            deadline: { $gt: now },
+            raisedAmount: { $gte: targetAmount },
+        });
+
+        for (const campaign of campaignsToActivate) {
+            campaign.status = "active";
+            await campaign.save();
+            console.log(
+                `Campaign "${campaign.title}" status updated to "${campaign.status}"`
+            );
+        }
+    } catch (error) {
+        console.error("Error updating campaign statuses:", error);
+    }
+};
 exports.getAllCampaigns = async (req, res) => {
     try {
         const { status } = req.query; // Get status from req.query
