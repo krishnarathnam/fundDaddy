@@ -1,15 +1,115 @@
-import React from "react";
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { useParams } from "react-router-dom";
-import { recommendedCampaigns } from "./FeaturedCampaigns";
 import NavBar from "./NavBar";
 
 export default function CampaignDetails() {
   const { id } = useParams();
-  // Find the campaign by ID
-  const campaign = recommendedCampaigns.find(c => c.id === Number(id));
+  const navigate = useNavigate();
+  const [campaign, setCampaign] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [donationAmount, setDonationAmount] = useState('');
 
-  if (!campaign) return <div className="text-center py-20 text-2xl">Campaign not found.</div>;
+  useEffect(() => {
+    fetchCampaignDetails();
+  }, [id]);
+
+  const fetchCampaignDetails = async () => {
+    try {
+      console.log('Fetching campaign details for ID:', id);
+      const response = await axios.get(`http://localhost:5000/api/campaigns/${id}`);
+      console.log('Campaign details response:', response.data);
+      setCampaign(response.data);
+    } catch (error) {
+      console.error('Error fetching campaign details:', error);
+      if (error.response) {
+        console.error('Error response data:', error.response.data);
+        console.error('Error response status:', error.response.status);
+        setError(`Failed to load campaign details: ${error.response.data.message || 'Server error'}`);
+      } else if (error.request) {
+        console.error('No response received:', error.request);
+        setError('No response from server. Please check your connection.');
+      } else {
+        console.error('Error setting up request:', error.message);
+        setError('Failed to load campaign details. Please try again later.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDonate = async (e) => {
+    e.preventDefault();
+    if (!donationAmount || donationAmount <= 0) {
+      setError('Please enter a valid donation amount');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      await axios.post(
+        `http://localhost:5000/api/campaigns/${id}/donate`,
+        { amount: Number(donationAmount) },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      // Refresh campaign details after successful donation
+      fetchCampaignDetails();
+      setDonationAmount('');
+      setError('');
+    } catch (error) {
+      console.error('Error making donation:', error);
+      setError(error.response?.data?.message || 'Failed to process donation. Please try again.');
+    }
+  };
+
+  if (loading) {
+    return (
+      <>
+        <NavBar />
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-xl text-gray-600">Loading campaign details...</div>
+        </div>
+      </>
+    );
+  }
+
+  if (error && !campaign) {
+    return (
+      <>
+        <NavBar />
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-xl text-red-600">{error}</div>
+        </div>
+      </>
+    );
+  }
+
+  if (!campaign) {
+    return (
+      <>
+        <NavBar />
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-xl text-gray-600">Campaign not found</div>
+        </div>
+      </>
+    );
+  }
+
+  const progress = (campaign.raisedAmount / campaign.targetAmount) * 100;
+  const daysLeft = Math.ceil((new Date(campaign.endDate) - new Date()) / (1000 * 60 * 60 * 24));
 
   // Example: Attach a dailyDonations array to each campaign (in real app, this would come from backend)
   const dailyDonations = [
@@ -57,62 +157,112 @@ export default function CampaignDetails() {
 
   return (
     <>
-    <NavBar />
-    <div className="max-w-6xl mx-auto px-4 py-10">
-      <h1 className="text-6xl mb-3 mx-auto my-0 font-bold text-center">{campaign.title}</h1>
-      <p className="text-gray-600 mb-10 text-center">
-        by {campaign.organizer}
-      </p>
-      <div className="flex flex-col lg:flex-row gap-8">
-        <div className="flex-1">
-          <img
-            src={campaign.image}
-            alt={campaign.title}
-            className="rounded-xl w-full object-cover mb-4"
-            style={{ maxHeight: 400 }}
-          />
-          <div className="flex gap-2 mb-4">
-            <span className="bg-sky-100 text-sky-700 px-3 py-1 rounded-full text-xs font-semibold">{campaign.category}</span>
-            <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs font-semibold">{campaign.location || "Location"}</span>
-          </div>
-          <h2 className="text-xl font-bold mb-2">About this project</h2>
-          <p className="text-gray-700 mb-4">
-            {campaign.description}
-          </p>
-        </div>
-        {/* Right: Stats and actions */}
-        <div className="w-full lg:w-80 flex-shrink-0">
-          <div className="bg-white rounded-2xl shadow p-6 mb-4 flex flex-col justify-between" style={{ height: 400 }}>
-            <div>
-              <div className="text-3xl font-bold text-sky-500 mb-2">${campaign.raised.toLocaleString()}</div>
-              <div className="text-gray-600 mb-4">pledged of ${campaign.goal.toLocaleString()} goal</div>
-              <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-                <div 
-                  className="bg-sky-500 h-2 rounded-full" 
-                  style={{ width: `${(campaign.raised / campaign.goal) * 100}%` }}
+      <NavBar />
+      <div className="min-h-screen bg-gray-50 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Campaign Header */}
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div className="relative h-96">
+              <img
+                src={campaign.image}
+                alt={campaign.title}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                <h1 className="text-4xl font-bold text-white text-center px-4">
+                  {campaign.title}
+                </h1>
+              </div>
+            </div>
+
+            <div className="p-8">
+              {/* Campaign Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-sky-600">
+                    ${campaign.raisedAmount.toLocaleString()}
+                  </div>
+                  <div className="text-gray-600">raised of ${campaign.targetAmount.toLocaleString()}</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-sky-600">
+                    {Math.round(progress)}%
+                  </div>
+                  <div className="text-gray-600">funded</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-sky-600">
+                    {daysLeft}
+                  </div>
+                  <div className="text-gray-600">days left</div>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="w-full bg-gray-200 rounded-full h-4 mb-8">
+                <div
+                  className="bg-sky-500 h-4 rounded-full transition-all duration-500"
+                  style={{ width: `${progress}%` }}
                 ></div>
               </div>
-              <div className="mb-6">
-                <div className="text-3xl font-bold text-black mt-7 mb-7">
-                  {Math.floor(campaign.raised / 100)} backers
+
+              {/* Campaign Details */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2">
+                  <h2 className="text-2xl font-bold mb-4">About this campaign</h2>
+                  <p className="text-gray-700 mb-6">{campaign.description}</p>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="font-semibold text-gray-900">Category</h3>
+                      <p className="text-gray-600">{campaign.category}</p>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">Location</h3>
+                      <p className="text-gray-600">{campaign.location}</p>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">End Date</h3>
+                      <p className="text-gray-600">{new Date(campaign.endDate).toLocaleDateString()}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="text-3xl font-bold text-black">
-                  {campaign.daysLeft} days to go
+
+                {/* Donation Form */}
+                <div className="bg-gray-50 p-6 rounded-xl">
+                  <h3 className="text-xl font-bold mb-4">Make a Donation</h3>
+                  {error && (
+                    <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                      {error}
+                    </div>
+                  )}
+                  <form onSubmit={handleDonate} className="space-y-4">
+                    <div>
+                      <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
+                        Donation Amount ($)
+                      </label>
+                      <input
+                        type="number"
+                        id="amount"
+                        value={donationAmount}
+                        onChange={(e) => setDonationAmount(e.target.value)}
+                        min="1"
+                        step="1"
+                        required
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-sky-500 focus:ring-sky-500"
+                        placeholder="Enter amount"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      className="w-full bg-sky-600 text-white py-2 px-4 rounded-md hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2"
+                    >
+                      Donate Now
+                    </button>
+                  </form>
                 </div>
               </div>
             </div>
-            <div>
-              <button className="w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-3 rounded-lg transition mb-3">
-                Back this project
-              </button>
-              <div className="flex gap-2 justify-center">
-                <button className="bg-gray-100 flex-1 px-4 py-2 rounded-lg hover:bg-gray-200 transition">Remind me</button>
-                <button className="bg-gray-100 flex-1 px-4 py-2 rounded-lg hover:bg-gray-200 transition">Share</button>
-              </div>
-            </div>
-          </div>
-          <div className="text-xs text-gray-500 text-center">
-            All or nothing. This project will only be funded if it reaches its goal by the deadline.
           </div>
         </div>
       </div>
@@ -155,7 +305,6 @@ export default function CampaignDetails() {
           </ResponsiveContainer>
         </div>
       </div>
-    </div>
     </>
   );
 }

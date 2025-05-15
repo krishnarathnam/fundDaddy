@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 const badgeColors = {
   Tech: "bg-blue-100 text-blue-700",
@@ -115,91 +116,167 @@ export const recommendedCampaigns = [
 
 const CAMPAIGNS_PER_PAGE = 4;
 
+// Fallback campaign data
+const fallbackCampaigns = [
+  {
+    _id: "1",
+    title: "Help Build a School in Rural India",
+    description: "Support education for underprivileged children by helping us build a new school in rural India.",
+    category: "Education",
+    targetAmount: 50000,
+    raisedAmount: 25000,
+    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    _id: "2",
+    title: "Save the Endangered Tigers",
+    description: "Help protect endangered tigers and their natural habitat through conservation efforts.",
+    category: "Animals",
+    targetAmount: 75000,
+    raisedAmount: 45000,
+    image: "https://images.unsplash.com/photo-1534567110353-1f46f72192e9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    _id: "3",
+    title: "Clean Ocean Initiative",
+    description: "Join our mission to clean up ocean pollution and protect marine life.",
+    category: "Environment",
+    targetAmount: 100000,
+    raisedAmount: 60000,
+    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+  }
+];
+
 export default function FeaturedCampaigns() {
-  const [page, setPage] = React.useState(1);
-  const totalPages = Math.ceil(recommendedCampaigns.length / CAMPAIGNS_PER_PAGE);
-  const paginated = recommendedCampaigns.slice(
-    (page - 1) * CAMPAIGNS_PER_PAGE,
-    page * CAMPAIGNS_PER_PAGE
-  );
+  const [campaigns, setCampaigns] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetchCampaigns();
+  }, []);
+
+  const fetchCampaigns = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/campaigns');
+      if (response.data && response.data.length > 0) {
+        // Get the 3 most funded campaigns
+        const sortedCampaigns = response.data
+          .sort((a, b) => b.raisedAmount - a.raisedAmount)
+          .slice(0, 3);
+        setCampaigns(sortedCampaigns);
+      } else {
+        setCampaigns(fallbackCampaigns);
+      }
+    } catch (error) {
+      console.error('Error fetching campaigns:', error);
+      setError('Failed to load featured campaigns. Showing sample campaigns instead.');
+      setCampaigns(fallbackCampaigns);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="py-12">
+        <div className="text-center text-xl text-gray-600">Loading featured campaigns...</div>
+      </div>
+    );
+  }
 
   return (
-    <section className="w-full bg-[#fafafa] mx-auto  px-2 md:px-6 py-8">
-        <div className="max-w-7xl mx-auto  px-2 md:px-6 py-8">
-      <div className="flex flex-col lg:flex-row gap-8 items-stretch">
-        <div className="flex-1 max-w-2xl flex flex-col h-full">
-          <h3 className="uppercase text-xs font-bold text-gray-500 mb-2">Featured Project</h3>
-          <div className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col h-full">
-            <img src={featuredProject.image} alt={featuredProject.title} className="w-full h-96 object-cover" />
-            <div className="p-6 flex-1 flex flex-col">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-sky-500">
-                  <svg width="20" height="20" fill="currentColor" className="inline"><circle cx="10" cy="10" r="10"/></svg>
-                </span>
-                <span className="font-bold text-lg">{featuredProject.title}</span>
-              </div>
-              <div className="text-gray-500 text-sm mb-2">{featuredProject.organizer}</div>
-              <div className="flex items-center text-xs text-gray-500 mb-2">
-                <span className="mr-2">⏰ {featuredProject.daysLeft} days left</span>
-                <span>• {featuredProject.fundedPercent}% funded</span>
-              </div>
-              <p className="text-gray-700 text-sm mb-3">{featuredProject.description}</p>
-              <div className="flex flex-wrap gap-2 mb-2">
-                {featuredProject.tags.map(tag => (
-                  <span key={tag} className="bg-gray-100 px-3 py-1 rounded-full text-xs">{tag}</span>
-                ))}
-                <span className="bg-gray-100 px-3 py-1 rounded-full text-xs">{featuredProject.location}</span>
-              </div>
-            </div>
-          </div>
+    <section className="py-12 bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
+            Featured Campaigns
+          </h2>
+          <p className="mt-4 text-lg text-gray-600">
+            Discover and support these amazing causes making a difference in the world.
+          </p>
         </div>
 
-        <div className="flex-1 flex flex-col">
-          <h3 className="uppercase text-xs font-bold text-gray-500 mb-2">Recommended For You</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
-            {paginated.map(c => (
-              <Link to={`/campaign/${c.id}`} key={c.id}>
-                <div className="bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden flex flex-col cursor-pointer">
-                  <img src={c.image} alt={c.title} className="h-32 w-full object-cover" />
-                  <div className="p-4 flex-1 flex flex-col">
-                    <div className={`inline-block px-3 py-1 rounded-full text-xs font-semibold mb-2 ${badgeColors[c.category]}`}>
-                      {c.category}
+        {error && (
+          <div className="mt-4 p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded">
+            {error}
+          </div>
+        )}
+
+        <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {campaigns.map((campaign) => (
+            <Link
+              key={campaign._id}
+              to={`/campaign/${campaign._id}`}
+              className="group bg-white rounded-xl shadow-sm hover:shadow-lg transition overflow-hidden"
+            >
+              <div className="relative">
+                <img
+                  src={campaign.image}
+                  alt={campaign.title}
+                  className="w-full h-48 object-cover group-hover:scale-105 transition duration-300"
+                />
+                <div className="absolute top-4 left-4">
+                  <span className="bg-sky-100 text-sky-700 px-3 py-1 rounded-full text-xs font-semibold">
+                    {campaign.category}
+                  </span>
+                </div>
+              </div>
+              <div className="p-6">
+                <h3 className="text-xl font-bold mb-2 group-hover:text-sky-500 transition">
+                  {campaign.title}
+                </h3>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                  {campaign.description}
+                </p>
+                <div className="space-y-3">
+                  {/* Progress Bar */}
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-sky-500 h-2 rounded-full"
+                      style={{ width: `${(campaign.raisedAmount / campaign.targetAmount) * 100}%` }}
+                    ></div>
+                  </div>
+                  {/* Stats */}
+                  <div className="flex justify-between text-sm">
+                    <div>
+                      <span className="font-bold text-sky-500">
+                        ${campaign.raisedAmount.toLocaleString()}
+                      </span>
+                      <span className="text-gray-600"> raised</span>
                     </div>
-                    <h4 className="font-bold text-base mb-1 truncate">{c.title}</h4>
-                    <div className="text-gray-500 text-xs mb-2 truncate">by {c.organizer}</div>
-                    <div className="flex items-center text-xs text-gray-500 mb-2">
-                      <span className="mr-2">⏰ {c.daysLeft} days left</span>
-                      <span>• {c.fundedPercent}% funded</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                      <div
-                        className="h-2 rounded-full bg-sky-500"
-                        style={{ width: `${c.fundedPercent}%` }}
-                      ></div>
+                    <div className="text-gray-600">
+                      of ${campaign.targetAmount.toLocaleString()}
                     </div>
                   </div>
                 </div>
-              </Link>
-            ))}
-          </div>
-          <div className="flex justify-center mt-6 gap-2">
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i}
-                onClick={() => setPage(i + 1)}
-                className={`w-8 h-8 rounded-full font-semibold ${
-                  page === i + 1
-                    ? "bg-sky-500 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-sky-100"
-                }`}
-              >
-                {i + 1}
-              </button>
-            ))}
-          </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        <div className="mt-12 text-center">
+          <Link
+            to="/campaigns"
+            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700"
+          >
+            View All Campaigns
+            <svg
+              className="ml-2 -mr-1 w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 7l5 5m0 0l-5 5m5-5H6"
+              />
+            </svg>
+          </Link>
         </div>
       </div>
-        </div>
     </section>
   );
 }

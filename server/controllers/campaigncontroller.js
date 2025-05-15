@@ -1,6 +1,6 @@
 const Campaign = require("../models/campaign");
 
-eexports.createCampaign = async (req, res) => {
+exports.createCampaign = async (req, res) => {
   const { title, description, targetAmount, image } = req.body;
   const campaign = new Campaign({
     title,
