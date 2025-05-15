@@ -1,4 +1,5 @@
 const express = require("express");
+const Campaign = require("../models/campaign");
 const {
   createCampaign,
   getAllCampaigns,
@@ -15,7 +16,7 @@ router.get("/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    const campaign = await Campaign.findById(id).populate("createdBy", "name email");
+    const campaign = await campaign.findById(id).populate("createdBy", "name email");
 
     if (!campaign) {
       return res.status(404).json({ message: "Campaign not found" });
