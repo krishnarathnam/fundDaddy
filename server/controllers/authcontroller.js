@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 
 // Register controller
 exports.register = async (req, res) => {
+  console.log("register");
   const { name, email, password } = req.body;
 
   try {

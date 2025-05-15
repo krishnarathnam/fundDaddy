@@ -1,15 +1,54 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import BlobBackground from "./BlobBackground";
 
-const countryCodes = [
-  { code: "+1", name: "USA" },
-  { code: "+91", name: "India" },
-  { code: "+44", name: "UK" },
-  { code: "+61", name: "Australia" },
-  { code: "+81", name: "Japan" },
-];
-
 export default function SignupPage() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: ""
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.id]: e.target.value
+    });
+    setError("");
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://localhost:5000/api/auth/register", {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password
+      });
+      console.log("Registration successful:", response.data);
+      navigate("/login");
+    } catch (error) {
+      console.error("Registration error:", error);
+      setError(error.response?.data?.error || "Failed to register. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
       <BlobBackground />
@@ -21,7 +60,12 @@ export default function SignupPage() {
           </h1>
           <p className="text-gray-600 mt-2">Create your account to get started.</p>
         </div>
-        <form className="space-y-6">
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
+        <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
               Name
@@ -29,8 +73,11 @@ export default function SignupPage() {
             <input
               type="text"
               id="name"
+              value={formData.name}
+              onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition"
               placeholder="Enter your name"
+              required
             />
           </div>
           <div>
@@ -40,31 +87,12 @@ export default function SignupPage() {
             <input
               type="email"
               id="email"
+              value={formData.email}
+              onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition"
               placeholder="Enter your email"
+              required
             />
-          </div>
-          <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-              Phone Number
-            </label>
-            <div className="flex gap-2">
-              <select
-                id="countryCode"
-                className="px-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition bg-white"
-                defaultValue={countryCodes[0].code}
-              >
-                {countryCodes.map((c) => (
-                  <option key={c.code} value={c.code}>{c.name} ({c.code})</option>
-                ))}
-              </select>
-              <input
-                type="tel"
-                id="phone"
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition"
-                placeholder="Enter your phone number"
-              />
-            </div>
           </div>
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
@@ -73,8 +101,11 @@ export default function SignupPage() {
             <input
               type="password"
               id="password"
+              value={formData.password}
+              onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition"
               placeholder="Enter your password"
+              required
             />
           </div>
           <div>
@@ -84,15 +115,21 @@ export default function SignupPage() {
             <input
               type="password"
               id="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition"
               placeholder="Confirm your password"
+              required
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-sky-500 text-white font-semibold py-2 rounded-lg hover:bg-sky-600 transition duration-300"
+            disabled={loading}
+            className={`w-full bg-sky-500 text-white font-semibold py-2 rounded-lg transition duration-300 ${
+              loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-sky-600'
+            }`}
           >
-            Sign Up
+            {loading ? 'Signing up...' : 'Sign Up'}
           </button>
         </form>
         <div className="mt-6 text-center">

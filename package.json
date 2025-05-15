@@ -1,0 +1,26 @@
+{
+  "name": "funddaddy",
+  "version": "1.0.0",
+  "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
+  "homepage": "https://github.com/krishnarathnam/fundDaddy#readme",
+  "bugs": {
+    "url": "https://github.com/krishnarathnam/fundDaddy/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krishnarathnam/fundDaddy.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "client": "npm start --prefix client",
+    "server": "npm start --prefix server",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "dependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

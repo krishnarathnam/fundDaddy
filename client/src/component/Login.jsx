@@ -1,7 +1,45 @@
-import React from "react";
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import BlobBackground from "./BlobBackground";
 
 export default function LoginPage() {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: ""
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.id]: e.target.value
+    });
+    setError(""); // Clear error when user types
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    
+    console.log("Attempting login with:", formData);
+    
+    try {
+      const response = await axios.post("http://localhost:5000/api/auth/login", formData);
+      console.log("Login response:", response.data);
+      localStorage.setItem("token", response.data.token);
+      navigate("/campaigns");
+    } catch (error) {
+      console.error("Login error:", error);
+      setError(error.response?.data?.error || "Failed to login. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
@@ -14,7 +52,12 @@ export default function LoginPage() {
           </h1>
           <p className="text-gray-600 mt-2">Welcome back! Log in to your account.</p>
         </div>
-        <form className="space-y-6">
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
+        <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Email
@@ -22,8 +65,11 @@ export default function LoginPage() {
             <input
               type="email"
               id="email"
+              value={formData.email}
+              onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition"
               placeholder="Enter your email"
+              required
             />
           </div>
           <div>
@@ -33,8 +79,11 @@ export default function LoginPage() {
             <input
               type="password"
               id="password"
+              value={formData.password}
+              onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition"
               placeholder="Enter your password"
+              required
             />
           </div>
           <div className="flex items-center justify-between">
@@ -54,9 +103,12 @@ export default function LoginPage() {
           </div>
           <button
             type="submit"
-            className="w-full bg-sky-500 text-white font-semibold py-2 rounded-lg hover:bg-sky-600 transition duration-300"
+            disabled={loading}
+            className={`w-full bg-sky-500 text-white font-semibold py-2 rounded-lg transition duration-300 ${
+              loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-sky-600'
+            }`}
           >
-            Log In
+            {loading ? 'Logging in...' : 'Log In'}
           </button>
         </form>
         <div className="mt-6 text-center">
