@@ -4,7 +4,7 @@ const campaignSchema = new mongoose.Schema({
   title: String,
   description: String,
   targetAmount: Number,
-   category: String,
+  category: String,
   location: String, 
   endDate: Date,  
   raisedAmount: { type: Number, default: 0 },

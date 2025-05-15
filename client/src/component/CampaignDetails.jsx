@@ -21,17 +21,27 @@ export default function CampaignDetails() {
       console.log('Fetching campaign details for ID:', id);
       const response = await axios.get(`http://localhost:5000/api/campaigns/${id}`);
       console.log('Campaign details response:', response.data);
+      
+      if (!response.data) {
+        throw new Error('No campaign data received');
+      }
+      
       setCampaign(response.data);
+      setError('');
     } catch (error) {
       console.error('Error fetching campaign details:', error);
       if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
         console.error('Error response data:', error.response.data);
         console.error('Error response status:', error.response.status);
         setError(`Failed to load campaign details: ${error.response.data.message || 'Server error'}`);
       } else if (error.request) {
+        // The request was made but no response was received
         console.error('No response received:', error.request);
         setError('No response from server. Please check your connection.');
       } else {
+        // Something happened in setting up the request that triggered an Error
         console.error('Error setting up request:', error.message);
         setError('Failed to load campaign details. Please try again later.');
       }
