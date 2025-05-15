@@ -1,28 +1,86 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import NavBar from "./NavBar";
-import { recommendedCampaigns } from "./FeaturedCampaigns";
+
+// Static campaign data
+const initialCampaigns = [
+  {
+    _id: 1,
+    title: "Help Build a School in Rural India",
+    description: "Support education for underprivileged children by helping us build a new school in rural India.",
+    category: "Education",
+    targetAmount: 50000,
+    raisedAmount: 25000,
+    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    _id: 2,
+    title: "Save the Endangered Tigers",
+    description: "Help protect endangered tigers and their natural habitat through conservation efforts.",
+    category: "Animals",
+    targetAmount: 75000,
+    raisedAmount: 45000,
+    image: "https://images.unsplash.com/photo-1534567110353-1f46f72192e9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    _id: 3,
+    title: "Clean Ocean Initiative",
+    description: "Join our mission to clean up ocean pollution and protect marine life.",
+    category: "Environment",
+    targetAmount: 100000,
+    raisedAmount: 60000,
+    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    _id: 4,
+    title: "Medical Aid for Rural Communities",
+    description: "Provide essential medical supplies and healthcare services to rural communities.",
+    category: "Medical",
+    targetAmount: 30000,
+    raisedAmount: 15000,
+    image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    _id: 5,
+    title: "Tech Education for Youth",
+    description: "Empower young people with technology education and coding skills.",
+    category: "Technology",
+    targetAmount: 40000,
+    raisedAmount: 20000,
+    image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    _id: 6,
+    title: "Wildlife Conservation Project",
+    description: "Support our efforts to protect endangered wildlife species and their habitats.",
+    category: "Animals",
+    targetAmount: 60000,
+    raisedAmount: 35000,
+    image: "https://images.unsplash.com/photo-1534567110353-1f46f72192e9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+  }
+];
 
 export default function AllCampaigns() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("newest");
+  const [campaigns] = useState(initialCampaigns);
 
   const categories = ["All", "Animals", "Education", "Medical", "Environment", "Technology"];
 
-  const filteredCampaigns = recommendedCampaigns.filter(campaign => 
+  const filteredCampaigns = campaigns.filter(campaign => 
     selectedCategory === "All" || campaign.category === selectedCategory
   );
 
   const sortedCampaigns = [...filteredCampaigns].sort((a, b) => {
     switch (sortBy) {
       case "newest":
-        return b.id - a.id;
+        return b._id - a._id;
       case "oldest":
-        return a.id - b.id;
+        return a._id - b._id;
       case "mostFunded":
-        return b.raised - a.raised;
+        return b.raisedAmount - a.raisedAmount;
       case "endingSoon":
-        return a.daysLeft - b.daysLeft;
+        return 0;
       default:
         return 0;
     }
@@ -77,8 +135,8 @@ export default function AllCampaigns() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {sortedCampaigns.map((campaign) => (
             <Link
-              key={campaign.id}
-              to={`/campaign/${campaign.id}`}
+              key={campaign._id}
+              to={`/campaign/${campaign._id}`}
               className="group bg-white rounded-xl shadow-sm hover:shadow-lg transition overflow-hidden"
             >
               <div className="relative">
@@ -105,17 +163,19 @@ export default function AllCampaigns() {
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                       className="bg-sky-500 h-2 rounded-full"
-                      style={{ width: `${(campaign.raised / campaign.goal) * 100}%` }}
+                      style={{ width: `${(campaign.raisedAmount / campaign.targetAmount) * 100}%` }}
                     ></div>
                   </div>
                   {/* Stats */}
                   <div className="flex justify-between text-sm">
                     <div>
-                      <span className="font-bold text-sky-500">${campaign.raised.toLocaleString()}</span>
+                      <span className="font-bold text-sky-500">
+                        ${campaign.raisedAmount.toLocaleString()}
+                      </span>
                       <span className="text-gray-600"> raised</span>
                     </div>
                     <div className="text-gray-600">
-                      {campaign.daysLeft} days left
+                      of ${campaign.targetAmount.toLocaleString()}
                     </div>
                   </div>
                 </div>

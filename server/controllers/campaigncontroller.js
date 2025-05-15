@@ -16,6 +16,7 @@ exports.createCampaign = async (req, res) => {
 exports.getAllCampaigns = async (req, res) => {
   const campaigns = await Campaign.find().populate("creator", "name");
   res.json(campaigns);
+  console.log(campaigns);
 };
 
 
