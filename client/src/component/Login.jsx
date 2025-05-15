@@ -29,11 +29,31 @@ export default function LoginPage() {
     
     try {
       const response = await axios.post("http://localhost:5000/api/auth/login", formData);
-      console.log("Login response:", response.data);
+      console.log("Full login response:", response);
+      console.log("Login response data:", response.data);
+      console.log("User name from response:", response.data.name);
+      
+      if (!response.data.token) {
+        throw new Error("No token received from server");
+      }
+      
+      if (!response.data.name) {
+        console.warn("No name received from server, using email as fallback");
+        localStorage.setItem("userName", formData.email);
+      } else {
+        localStorage.setItem("userName", response.data.name);
+      }
+      
       localStorage.setItem("token", response.data.token);
+      console.log("Stored in localStorage:", {
+        token: localStorage.getItem("token"),
+        userName: localStorage.getItem("userName")
+      });
+      
       navigate("/campaigns");
     } catch (error) {
       console.error("Login error:", error);
+      console.error("Error response:", error.response);
       setError(error.response?.data?.error || "Failed to login. Please try again.");
     } finally {
       setLoading(false);

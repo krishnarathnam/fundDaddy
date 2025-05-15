@@ -1,7 +1,71 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function Navbar() {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log("NavBar mounted, checking auth state...");
+    const token = localStorage.getItem("token");
+    const storedName = localStorage.getItem("userName");
+    
+    console.log("Initial localStorage values:", {
+      token: token ? "exists" : "not found",
+      userName: storedName || "not found"
+    });
+    
+    if (token && storedName) {
+      console.log("Found both token and name in localStorage");
+      setIsLoggedIn(true);
+      setUserName(storedName);
+    } else {
+      console.log("Missing token or name, attempting to fetch user data");
+      // If no token or name, try to fetch user data
+      const fetchUserData = async () => {
+        try {
+          console.log("Fetching user data from /api/auth/me");
+          const response = await axios.get("http://localhost:5000/api/auth/me", {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          console.log("User data response:", response.data);
+          setUserName(response.data.name);
+          localStorage.setItem("userName", response.data.name);
+          setIsLoggedIn(true);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          console.error("Error response:", error.response);
+          // If token is invalid, clear everything
+          localStorage.removeItem("token");
+          localStorage.removeItem("userName");
+          setIsLoggedIn(false);
+          setUserName("");
+        }
+      };
+      
+      if (token) {
+        fetchUserData();
+      } else {
+        console.log("No token found, user is not logged in");
+      }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    console.log("Logging out user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("userName");
+    setIsLoggedIn(false);
+    setUserName("");
+    setIsDropdownOpen(false);
+    navigate("/");
+  };
+
   const scrollToHowItWorks = (e) => {
     e.preventDefault();
     const element = document.getElementById('how-it-works');
@@ -44,7 +108,43 @@ export default function Navbar() {
         >
           How It Works
         </a>
-        <Link to="/login" className="font-normal text-gray-900 hover:text-sky-500 transition">Log In</Link>
+        {isLoggedIn ? (
+          <div className="relative">
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center gap-2 font-semibold text-gray-900 hover:text-sky-500 transition"
+            >
+              {userName}
+              <svg
+                className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
+                <Link
+                  to="/dashboard"
+                  className="block px-4 py-2 text-gray-800 hover:bg-sky-50 hover:text-sky-500 transition"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-sky-50 hover:text-sky-500 transition"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <Link to="/login" className="font-normal text-gray-900 hover:text-sky-500 transition">Log In</Link>
+        )}
         <Link 
           to="/create-campaign" 
           className="ml-4 bg-sky-500 hover:bg-sky-600 text-white font-semibold px-6 py-2 rounded-xl transition"
