@@ -245,7 +245,6 @@ export default function AllCampaigns() {
               key={campaign._id}
               to={`/campaign/${campaign._id}`}
               className="group bg-white rounded-xl shadow-sm hover:shadow-lg transition overflow-hidden"
-              onClick={() => console.log('Navigating to campaign:', campaign._id)}
             >
               <div className="relative">
                 <img
