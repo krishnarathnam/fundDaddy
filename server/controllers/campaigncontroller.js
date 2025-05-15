@@ -1,7 +1,7 @@
 const Campaign = require("../models/campaign");
 
 exports.createCampaign = async (req, res) => {
-  const { title, description, targetAmount, image } = req.body;
+  const { title, description, targetAmount, image, } = req.body;
   const campaign = new Campaign({
     title,
     description,
@@ -17,9 +17,14 @@ exports.createCampaign = async (req, res) => {
 };
 
 exports.getAllCampaigns = async (req, res) => {
-  const campaigns = await Campaign.find().populate("creator", "name");
+  let filter={};
+
+   if (status) {
+            filter.status = status; // Add status to the filter
+        }
+
+      const campaigns = await Campaign.find(filter).populate("creator", "name");
   res.json(campaigns);
-  console.log(campaigns);
 };
 
 
