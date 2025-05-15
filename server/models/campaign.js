@@ -8,7 +8,7 @@ const campaignSchema = new mongoose.Schema({
   category: String,
   location: String, 
   endDate: Date,  
-    status: { type: String, default: "pending" },
+   status: { type: String, default: "pending" },
   raisedAmount: { type: Number, default: 0 },
   creator: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   image: String,
