@@ -110,9 +110,25 @@ exports.deleteCampaign = async (req, res) => {
 };
 
 exports.donate = async (req, res) => {
-    const { amount } = req.body;
-    const campaign = await Campaign.findById(req.params.id);
-    campaign.raisedAmount += amount;
-    await campaign.save();
-    res.json(campaign);
+    try {
+        const { amount } = req.body;
+        const campaign = await Campaign.findById(req.params.id);
+        
+        if (!campaign) {
+            return res.status(404).json({ message: 'Campaign not found' });
+        }
+
+        // Update raised amount
+        campaign.raisedAmount += amount;
+
+        // Check if campaign has reached or exceeded its target
+        if (campaign.raisedAmount >= campaign.targetAmount) {
+            campaign.status = "successful";
+        }
+
+        await campaign.save();
+        res.json(campaign);
+    } catch (error) {
+        res.status(500).json({ message: 'Error processing donation', error: error.message });
+    }
 };

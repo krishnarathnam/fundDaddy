@@ -15,7 +15,8 @@ const fallbackCampaigns = [
     location: "Rural India",
     endDate: "2024-12-31",
     image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    creator: "1"
+    creator: "1",
+    status: "active"
   },
   {
     _id: "2",
@@ -23,11 +24,12 @@ const fallbackCampaigns = [
     description: "Help protect endangered tigers and their natural habitat through conservation efforts. Your support will fund anti-poaching units and habitat restoration.",
     category: "Animals",
     targetAmount: 75000,
-    raisedAmount: 45000,
+    raisedAmount: 75000,
     location: "Southeast Asia",
     endDate: "2024-11-30",
     image: "https://images.unsplash.com/photo-1534567110353-1f46f72192e9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    creator: "2"
+    creator: "2",
+    status: "successful"
   },
   {
     _id: "3",
@@ -39,7 +41,8 @@ const fallbackCampaigns = [
     location: "Pacific Coast",
     endDate: "2024-10-31",
     image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    creator: "3"
+    creator: "3",
+    status: "active"
   },
   {
     _id: "4",
@@ -51,7 +54,8 @@ const fallbackCampaigns = [
     location: "Sub-Saharan Africa",
     endDate: "2024-09-30",
     image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    creator: "4"
+    creator: "4",
+    status: "pending"
   },
   {
     _id: "5",
@@ -63,7 +67,8 @@ const fallbackCampaigns = [
     location: "Urban Centers",
     endDate: "2024-08-31",
     image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    creator: "5"
+    creator: "5",
+    status: "active"
   },
   {
     _id: "6",
@@ -75,7 +80,8 @@ const fallbackCampaigns = [
     location: "Amazon Rainforest",
     endDate: "2024-07-31",
     image: "https://images.unsplash.com/photo-1534567110353-1f46f72192e9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    creator: "6"
+    creator: "6",
+    status: "active"
   },
   {
     _id: "7",
@@ -87,7 +93,8 @@ const fallbackCampaigns = [
     location: "Flood-Affected Regions",
     endDate: "2024-06-30",
     image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    creator: "7"
+    creator: "7",
+    status: "active"
   },
   {
     _id: "8",
@@ -99,7 +106,8 @@ const fallbackCampaigns = [
     location: "Rural Communities",
     endDate: "2024-05-31",
     image: "https://images.unsplash.com/photo-1509391366360-2e959784a276?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    creator: "8"
+    creator: "8",
+    status: "active"
   },
   {
     _id: "9",
@@ -111,7 +119,8 @@ const fallbackCampaigns = [
     location: "Urban Centers",
     endDate: "2024-04-30",
     image: "https://images.unsplash.com/photo-1573497620053-ea5300f94f21?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    creator: "9"
+    creator: "9",
+    status: "pending"
   },
   {
     _id: "10",
@@ -123,7 +132,8 @@ const fallbackCampaigns = [
     location: "Urban Areas",
     endDate: "2024-03-31",
     image: "https://images.unsplash.com/photo-1464226184884-fa280b87c399?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    creator: "10"
+    creator: "10",
+    status: "failed"
   }
 ];
 
@@ -250,40 +260,47 @@ export default function AllCampaigns() {
                 <img
                   src={campaign.image}
                   alt={campaign.title}
-                  className="w-full h-48 object-cover group-hover:scale-105 transition duration-300"
+                  className="w-full h-48 object-cover"
                 />
-                <div className="absolute top-4 left-4">
-                  <span className="bg-sky-100 text-sky-700 px-3 py-1 rounded-full text-xs font-semibold">
-                    {campaign.category}
+                {/* Status Badge */}
+                <div className="absolute top-4 right-4">
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    campaign.status === 'active' ? 'bg-green-100 text-green-800' :
+                    campaign.status === 'successful' ? 'bg-blue-100 text-blue-800' :
+                    campaign.status === 'failed' ? 'bg-red-100 text-red-800' :
+                    'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {campaign.status ? campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1) : 'Pending'}
                   </span>
                 </div>
               </div>
               <div className="p-6">
-                <h3 className="text-xl font-bold mb-2 group-hover:text-sky-500 transition">
+                <h3 className="text-xl font-semibold mb-2 group-hover:text-sky-600 transition">
                   {campaign.title}
                 </h3>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                <p className="text-gray-600 mb-4 line-clamp-2">
                   {campaign.description}
                 </p>
-                <div className="space-y-3">
-                  {/* Progress Bar */}
+                <div className="flex justify-between items-center text-sm text-gray-500">
+                  <span>{campaign.category}</span>
+                  <span>{campaign.location}</span>
+                </div>
+                <div className="mt-4">
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                       className="bg-sky-500 h-2 rounded-full"
-                      style={{ width: `${(campaign.raisedAmount / campaign.targetAmount) * 100}%` }}
+                      style={{
+                        width: `${(campaign.raisedAmount / campaign.targetAmount) * 100}%`,
+                      }}
                     ></div>
                   </div>
-                  {/* Stats */}
-                  <div className="flex justify-between text-sm">
-                    <div>
-                      <span className="font-bold text-sky-500">
-                        ${campaign.raisedAmount.toLocaleString()}
-                      </span>
-                      <span className="text-gray-600"> raised</span>
-                    </div>
-                    <div className="text-gray-600">
+                  <div className="flex justify-between mt-2 text-sm">
+                    <span className="text-gray-600">
+                      ${campaign.raisedAmount.toLocaleString()} raised
+                    </span>
+                    <span className="text-gray-600">
                       of ${campaign.targetAmount.toLocaleString()}
-                    </div>
+                    </span>
                   </div>
                 </div>
               </div>

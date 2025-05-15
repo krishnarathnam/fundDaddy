@@ -147,6 +147,22 @@ export default function CampaignDetails() {
                 </div>
               </div>
 
+              {/* Status Badge */}
+              <div className="bg-white rounded-xl p-6 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-600">Status:</span>
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    !campaign.status ? 'bg-yellow-100 text-yellow-800' :
+                    campaign.status === 'active' ? 'bg-green-100 text-green-800' :
+                    campaign.status === 'successful' ? 'bg-blue-100 text-blue-800' :
+                    campaign.status === 'failed' ? 'bg-red-100 text-red-800' :
+                    'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {campaign.status ? campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1) : 'Pending'}
+                  </span>
+                </div>
+              </div>
+
               {/* Progress Bar */}
               <div className="bg-white rounded-xl p-6 shadow-sm">
                 <div className="w-full bg-gray-200 rounded-full h-4">
