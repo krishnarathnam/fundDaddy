@@ -49,6 +49,6 @@ router.get("/:id", async (req, res) => {
 });
 
 router.post("/:id/donate", authMiddleware, donate);
-router.delete('/:id', authMiddleware, deleteCampaign);
+router.delete("/:id", authMiddleware, deleteCampaign);
 
 module.exports = router;

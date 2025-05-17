@@ -51,8 +51,10 @@ const Dashboard = () => {
         }
       });
 
-      setCampaigns(campaigns.filter(campaign => campaign._id !== campaignId));
-      setShowDeleteMenu(null);
+      if (response.data.message === "Campaign deleted successfully") {
+        setCampaigns(campaigns.filter(campaign => campaign._id !== campaignId));
+        setShowDeleteMenu(null);
+      }
     } catch (error) {
       console.error('Error deleting campaign:', error.response?.data || error.message);
       alert(error.response?.data?.message || 'Failed to delete campaign. Please try again.');
