@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import NavBar from "./NavBar";
 
 export default function CampaignDetails() {
@@ -68,7 +67,7 @@ export default function CampaignDetails() {
       <>
         <NavBar />
         <div className="min-h-screen flex items-center justify-center">
-          <div className="text-xl text-gray-600">Loading campaign details...</div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
         </div>
       </>
     );
@@ -96,63 +95,46 @@ export default function CampaignDetails() {
     );
   }
 
-  const progress = (campaign.raisedAmount / campaign.targetAmount) * 100;
+  const progress = Math.min((campaign.raisedAmount / campaign.targetAmount) * 100, 100);
   const daysLeft = Math.ceil((new Date(campaign.endDate) - new Date()) / (1000 * 60 * 60 * 24));
 
   return (
     <>
       <NavBar />
-      <div className="min-h-screen bg-gray-50">
-        {/* Hero Section */}
-        <div className="relative h-[500px]">
+      <div className="min-h-screen bg-gray-100">
+        <div className="relative h-[70vh]">
           <img
-            src={campaign.image}
+            src={campaign.image || 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80'}
             alt={campaign.title}
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
-              <div className="text-white">
-                <h1 className="text-5xl font-bold mb-4">{campaign.title}</h1>
-                <p className="text-xl text-gray-200 max-w-2xl">{campaign.description}</p>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="max-w-7xl mx-auto px-8 text-center">
+                <h1 className="text-5xl font-bold text-white mb-6">{campaign.title}</h1>
+                <div className="flex items-center justify-center gap-4">
+                  <span className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-lg text-white text-sm">
+                    {campaign.category}
+                  </span>
+                  <span className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-lg text-white text-sm">
+                    {campaign.location}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Campaign Details */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* Stats Cards */}
-              <div className="grid grid-cols-3 gap-4">
-                <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <div className="text-3xl font-bold text-sky-600">
-                    ${campaign.raisedAmount.toLocaleString()}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <div className="lg:col-span-8 space-y-12">
+              <div className="bg-white rounded-3xl p-8 shadow-lg">
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <h2 className="text-3xl font-bold text-gray-900">Campaign Progress</h2>
+                    <p className="text-gray-500 mt-2">Help us reach our goal</p>
                   </div>
-                  <div className="text-gray-600">raised of ${campaign.targetAmount.toLocaleString()}</div>
-                </div>
-                <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <div className="text-3xl font-bold text-sky-600">
-                    {Math.round(progress)}%
-                  </div>
-                  <div className="text-gray-600">funded</div>
-                </div>
-                <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <div className="text-3xl font-bold text-sky-600">
-                    {daysLeft}
-                  </div>
-                  <div className="text-gray-600">days left</div>
-                </div>
-              </div>
-
-              {/* Status Badge */}
-              <div className="bg-white rounded-xl p-6 shadow-sm">
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-600">Status:</span>
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    !campaign.status ? 'bg-yellow-100 text-yellow-800' :
+                  <span className={`px-6 py-3 rounded-full text-sm font-medium ${
                     campaign.status === 'active' ? 'bg-green-100 text-green-800' :
                     campaign.status === 'successful' ? 'bg-blue-100 text-blue-800' :
                     campaign.status === 'failed' ? 'bg-red-100 text-red-800' :
@@ -161,64 +143,89 @@ export default function CampaignDetails() {
                     {campaign.status ? campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1) : 'Pending'}
                   </span>
                 </div>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="bg-white rounded-xl p-6 shadow-sm">
-                <div className="w-full bg-gray-200 rounded-full h-4">
-                  <div
-                    className="bg-sky-500 h-4 rounded-full transition-all duration-500"
-                    style={{ width: `${progress}%` }}
-                  ></div>
+                <div className="space-y-8">
+                  <div className="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
+                    <div
+                      className="bg-gradient-to-r from-blue-500 to-indigo-500 h-6 rounded-full transition-all duration-500"
+                      style={{ width: `${progress}%` }}
+                    ></div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-8">
+                    <div className="text-center">
+                      <div className="text-4xl font-bold text-gray-900">
+                        ${campaign.raisedAmount.toLocaleString()}
+                      </div>
+                      <div className="text-sm text-gray-500 mt-2">Raised</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-4xl font-bold text-gray-900">
+                        ${campaign.targetAmount.toLocaleString()}
+                      </div>
+                      <div className="text-sm text-gray-500 mt-2">Goal</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-4xl font-bold text-gray-900">
+                        {daysLeft}
+                      </div>
+                      <div className="text-sm text-gray-500 mt-2">Days Left</div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Campaign Info */}
-              <div className="bg-white rounded-xl p-8 shadow-sm">
-                <h2 className="text-2xl font-bold mb-6">About this campaign</h2>
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-2">Category</h3>
-                    <p className="text-gray-600">{campaign.category}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="bg-white rounded-3xl p-8 shadow-lg">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-6">Campaign Details</h3>
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500">Category</h4>
+                      <p className="text-lg text-gray-900 mt-2">{campaign.category}</p>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500">Location</h4>
+                      <p className="text-lg text-gray-900 mt-2">{campaign.location}</p>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500">End Date</h4>
+                      <p className="text-lg text-gray-900 mt-2">{new Date(campaign.endDate).toLocaleDateString()}</p>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-500">Created By</h4>
+                      <p className="text-lg text-gray-900 mt-2">{campaign.creator?.name || 'Anonymous'}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-2">Location</h3>
-                    <p className="text-gray-600">{campaign.location}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-2">End Date</h3>
-                    <p className="text-gray-600">{new Date(campaign.endDate).toLocaleDateString()}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-2">Description</h3>
-                    <p className="text-gray-600 leading-relaxed">{campaign.description}</p>
-                  </div>
+                </div>
+
+                <div className="bg-white rounded-3xl p-8 shadow-lg">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-6">About this Campaign</h3>
+                  <p className="text-gray-600 leading-relaxed whitespace-pre-line">
+                    {campaign.description}
+                  </p>
                 </div>
               </div>
             </div>
 
-            {/* Right Column - Donation Form */}
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-xl p-6 shadow-sm sticky top-8">
-                <h3 className="text-xl font-bold mb-6">Make a Donation</h3>
+            <div className="lg:col-span-4">
+              <div className="bg-white rounded-3xl p-8 shadow-lg sticky top-8">
+                <h3 className="text-2xl font-bold text-gray-900 mb-6">Make a Donation</h3>
                 {error && (
-                  <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl">
                     {error}
                   </div>
                 )}
-                <form onSubmit={handleDonate} className="space-y-4">
+                <form onSubmit={handleDonate} className="space-y-6">
                   <div>
-                    <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
                       Donation Amount
                     </label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-lg">$</span>
                       <input
                         type="number"
                         id="amount"
                         value={donationAmount}
                         onChange={(e) => setDonationAmount(e.target.value)}
-                        className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none transition"
+                        className="w-full pl-10 pr-4 py-4 text-lg border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                         placeholder="Enter amount"
                         min="1"
                         required
@@ -227,7 +234,7 @@ export default function CampaignDetails() {
                   </div>
                   <button
                     type="submit"
-                    className="w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-3 rounded-lg transition duration-300"
+                    className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold py-4 rounded-xl transition duration-300 text-lg"
                   >
                     Donate Now
                   </button>

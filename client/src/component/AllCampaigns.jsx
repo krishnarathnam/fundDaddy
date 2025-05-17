@@ -234,11 +234,11 @@ export default function AllCampaigns() {
               </button>
             ))}
           </div>
-
-          {/* Sort Dropdown */}
-          <select
+            {/* Sort Dropdown */}
+        <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
+
             className="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-sky-500"
           >
             <option value="newest">Newest First</option>

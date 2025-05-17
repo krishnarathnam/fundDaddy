@@ -6,7 +6,7 @@ import SignUpPage from './component/SignUp.jsx'
 import CampaignDetails from "./component/CampaignDetails";
 import AllCampaigns from "./component/AllCampaigns";
 import CreateCampaign from "./component/CreateCampaign";
-
+import Dashboard from "./component/Dashboard.jsx";
 
 export default function App() {
   return (
@@ -18,6 +18,7 @@ export default function App() {
         <Route path="/campaign/:id" element={<CampaignDetails />} />
         <Route path="/campaigns" element={<AllCampaigns />} />
         <Route path="/create-campaign" element={<CreateCampaign />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </Router>
   )

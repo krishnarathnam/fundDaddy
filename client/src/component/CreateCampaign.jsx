@@ -83,7 +83,6 @@ export default function CreateCampaign() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Campaign Title */}
               <div>
                 <label htmlFor="title" className="block text-sm font-medium text-gray-700">
                   Campaign Title

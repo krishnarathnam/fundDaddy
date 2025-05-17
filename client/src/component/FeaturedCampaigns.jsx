@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
@@ -160,7 +160,6 @@ export default function FeaturedCampaigns() {
     try {
       const response = await axios.get('http://localhost:5000/api/campaigns');
       if (response.data && response.data.length > 0) {
-        // Get the 3 most funded campaigns
         const sortedCampaigns = response.data
           .sort((a, b) => b.raisedAmount - a.raisedAmount)
           .slice(0, 3);
@@ -230,14 +229,12 @@ export default function FeaturedCampaigns() {
                   {campaign.description}
                 </p>
                 <div className="space-y-3">
-                  {/* Progress Bar */}
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                       className="bg-sky-500 h-2 rounded-full"
                       style={{ width: `${(campaign.raisedAmount / campaign.targetAmount) * 100}%` }}
                     ></div>
                   </div>
-                  {/* Stats */}
                   <div className="flex justify-between text-sm">
                     <div>
                       <span className="font-bold text-sky-500">

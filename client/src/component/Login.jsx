@@ -31,17 +31,16 @@ export default function LoginPage() {
       const response = await axios.post("http://localhost:5000/api/auth/login", formData);
       console.log("Full login response:", response);
       console.log("Login response data:", response.data);
-      console.log("User name from response:", response.data.name);
       
       if (!response.data.token) {
         throw new Error("No token received from server");
       }
       
-      if (!response.data.name) {
-        console.warn("No name received from server, using email as fallback");
-        localStorage.setItem("userName", formData.email);
+      // Store the user's name from the response
+      if (response.data.user && response.data.user.name) {
+        localStorage.setItem("userName", response.data.user.name);
       } else {
-        localStorage.setItem("userName", response.data.name);
+        throw new Error("No user name received from server");
       }
       
       localStorage.setItem("token", response.data.token);

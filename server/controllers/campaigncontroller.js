@@ -28,14 +28,15 @@ exports.deleteCampaign = async (req, res) => {
     const campaign = await Campaign.findById(req.params.id);
     if (!campaign) return res.status(404).json({ message: 'Campaign not found' });
 
-    // Allow deletion only by the owner
-    if (campaign.owner.toString() !== req.user.id) {
+    // Allow deletion only by the creator
+    if (campaign.creator.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized to delete this campaign' });
     }
 
-    await campaign.remove();
+    await Campaign.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: 'Campaign deleted successfully' });
   } catch (error) {
+    console.error('Error deleting campaign:', error);
     res.status(500).json({ message: 'Error deleting campaign' });
   }
 };

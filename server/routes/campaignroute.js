@@ -12,6 +12,15 @@ const mongoose = require("mongoose");
 
 router.post("/", authMiddleware, createCampaign);
 router.get("/", getAllCampaigns);
+router.get("/my-campaigns", authMiddleware, async (req, res) => {
+  try {
+    const campaigns = await Campaign.find({ creator: req.user.id }).populate("creator", "name email");
+    res.json(campaigns);
+  } catch (error) {
+    console.error("Error fetching user campaigns:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
 
 router.get("/:id", async (req, res) => {
   try {
