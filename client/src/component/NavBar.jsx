@@ -9,24 +9,38 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log("NavBar mounted, checking auth state...");
     const token = localStorage.getItem("token");
     const storedName = localStorage.getItem("userName");
     
+    console.log("Initial localStorage values:", {
+      token: token ? "exists" : "not found",
+      userName: storedName || "not found"
+    });
+    
     if (token && storedName) {
+      console.log("Found both token and name in localStorage");
       setIsLoggedIn(true);
       setUserName(storedName);
-    
+    } else {
+      console.log("Missing token or name, attempting to fetch user data");
+      // If no token or name, try to fetch user data
       const fetchUserData = async () => {
         try {
+          console.log("Fetching user data from /api/auth/me");
           const response = await axios.get("http://localhost:5000/api/auth/me", {
             headers: {
               Authorization: `Bearer ${token}`
             }
           });
+          console.log("User data response:", response.data);
           setUserName(response.data.name);
           localStorage.setItem("userName", response.data.name);
           setIsLoggedIn(true);
         } catch (error) {
+          console.error("Error fetching user data:", error);
+          console.error("Error response:", error.response);
+          // If token is invalid, clear everything
           localStorage.removeItem("token");
           localStorage.removeItem("userName");
           setIsLoggedIn(false);
@@ -36,11 +50,14 @@ export default function Navbar() {
       
       if (token) {
         fetchUserData();
+      } else {
+        console.log("No token found, user is not logged in");
       }
     }
   }, []);
 
   const handleLogout = () => {
+    console.log("Logging out user");
     localStorage.removeItem("token");
     localStorage.removeItem("userName");
     setIsLoggedIn(false);

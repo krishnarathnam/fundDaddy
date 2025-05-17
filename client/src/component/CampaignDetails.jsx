@@ -66,8 +66,8 @@ export default function CampaignDetails() {
     return (
       <>
         <NavBar />
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-600"></div>
         </div>
       </>
     );
@@ -77,7 +77,7 @@ export default function CampaignDetails() {
     return (
       <>
         <NavBar />
-        <div className="min-h-screen flex items-center justify-center">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
           <div className="text-xl text-red-600">{error}</div>
         </div>
       </>
@@ -88,131 +88,131 @@ export default function CampaignDetails() {
     return (
       <>
         <NavBar />
-        <div className="min-h-screen flex items-center justify-center">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
           <div className="text-xl text-gray-600">Campaign not found</div>
         </div>
       </>
     );
   }
 
-  const progress = Math.min((campaign.raisedAmount / campaign.targetAmount) * 100, 100);
+  const progress = (campaign.raisedAmount / campaign.targetAmount) * 100;
   const daysLeft = Math.ceil((new Date(campaign.endDate) - new Date()) / (1000 * 60 * 60 * 24));
 
   return (
     <>
       <NavBar />
-      <div className="min-h-screen bg-gray-100">
-        <div className="relative h-[70vh]">
+      <div className="min-h-screen bg-gray-50">
+        {/* Hero Section */}
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent z-10"></div>
           <img
-            src={campaign.image || 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80'}
+            src={campaign.image}
             alt={campaign.title}
-            className="w-full h-full object-cover"
+            className="w-full h-[50vh] object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="max-w-7xl mx-auto px-8 text-center">
-                <h1 className="text-5xl font-bold text-white mb-6">{campaign.title}</h1>
-                <div className="flex items-center justify-center gap-4">
-                  <span className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-lg text-white text-sm">
+          <div className="absolute inset-0 z-20">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-end pb-12">
+              <div className="text-white">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="px-4 py-1.5 bg-indigo-600 rounded-full text-sm font-medium">
                     {campaign.category}
                   </span>
-                  <span className="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-lg text-white text-sm">
-                    {campaign.location}
+                  <span className={`px-4 py-1.5 rounded-full text-sm font-medium ${
+                    daysLeft > 0 ? 'bg-green-600' : 'bg-red-600'
+                  }`}>
+                    {daysLeft > 0 ? `${daysLeft} days left` : 'Campaign ended'}
                   </span>
                 </div>
+                <h1 className="text-4xl md:text-5xl font-bold mb-4">{campaign.title}</h1>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-            <div className="lg:col-span-8 space-y-12">
-              <div className="bg-white rounded-3xl p-8 shadow-lg">
-                <div className="flex items-center justify-between mb-8">
+        {/* Main Content */}
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-30">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Campaign Details */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Progress Section */}
+              <div className="bg-white rounded-xl shadow-sm p-8">
+                <div className="flex justify-between items-center mb-6">
                   <div>
-                    <h2 className="text-3xl font-bold text-gray-900">Campaign Progress</h2>
-                    <p className="text-gray-500 mt-2">Help us reach our goal</p>
+                    <div className="text-4xl font-bold text-indigo-600">${campaign.raisedAmount.toLocaleString()}</div>
+                    <div className="text-gray-500 mt-1">raised of ${campaign.targetAmount.toLocaleString()}</div>
                   </div>
-                  <span className={`px-6 py-3 rounded-full text-sm font-medium ${
-                    campaign.status === 'active' ? 'bg-green-100 text-green-800' :
-                    campaign.status === 'successful' ? 'bg-blue-100 text-blue-800' :
-                    campaign.status === 'failed' ? 'bg-red-100 text-red-800' :
-                    'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {campaign.status ? campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1) : 'Pending'}
-                  </span>
+                  <div className="text-right">
+                    <div className="text-4xl font-bold text-indigo-600">{Math.min(Math.round(progress), 100)}%</div>
+                    <div className="text-gray-500 mt-1">funded</div>
+                  </div>
                 </div>
-                <div className="space-y-8">
-                  <div className="w-full bg-gray-200 rounded-full h-6 overflow-hidden">
-                    <div
-                      className="bg-gradient-to-r from-blue-500 to-indigo-500 h-6 rounded-full transition-all duration-500"
-                      style={{ width: `${progress}%` }}
-                    ></div>
-                  </div>
-                  <div className="grid grid-cols-3 gap-8">
-                    <div className="text-center">
-                      <div className="text-4xl font-bold text-gray-900">
-                        ${campaign.raisedAmount.toLocaleString()}
-                      </div>
-                      <div className="text-sm text-gray-500 mt-2">Raised</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-4xl font-bold text-gray-900">
-                        ${campaign.targetAmount.toLocaleString()}
-                      </div>
-                      <div className="text-sm text-gray-500 mt-2">Goal</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-4xl font-bold text-gray-900">
-                        {daysLeft}
-                      </div>
-                      <div className="text-sm text-gray-500 mt-2">Days Left</div>
-                    </div>
-                  </div>
+                <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+                  <div
+                    className="h-3 rounded-full transition-all duration-500 bg-gradient-to-r from-indigo-500 to-blue-500"
+                    style={{ width: `${Math.min(progress, 100)}%` }}
+                  ></div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-white rounded-3xl p-8 shadow-lg">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6">Campaign Details</h3>
-                  <div className="space-y-6">
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500">Category</h4>
-                      <p className="text-lg text-gray-900 mt-2">{campaign.category}</p>
+              {/* Campaign Info */}
+              <div className="bg-white rounded-xl shadow-sm p-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">About this campaign</h2>
+                <p className="text-gray-600 leading-relaxed mb-8">{campaign.description}</p>
+                
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center">
+                      <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
                     </div>
                     <div>
-                      <h4 className="text-sm font-medium text-gray-500">Location</h4>
-                      <p className="text-lg text-gray-900 mt-2">{campaign.location}</p>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500">End Date</h4>
-                      <p className="text-lg text-gray-900 mt-2">{new Date(campaign.endDate).toLocaleDateString()}</p>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-500">Created By</h4>
-                      <p className="text-lg text-gray-900 mt-2">{campaign.creator?.name || 'Anonymous'}</p>
+                      <div className="text-sm text-gray-500">Location</div>
+                      <div className="font-medium text-gray-900">{campaign.location}</div>
                     </div>
                   </div>
-                </div>
-
-                <div className="bg-white rounded-3xl p-8 shadow-lg">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6">About this Campaign</h3>
-                  <p className="text-gray-600 leading-relaxed whitespace-pre-line">
-                    {campaign.description}
-                  </p>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center">
+                      <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-500">End Date</div>
+                      <div className="font-medium text-gray-900">{new Date(campaign.endDate).toLocaleDateString()}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center">
+                      <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-500">Organizer</div>
+                      <div className="font-medium text-gray-900">{campaign.creator?.name || 'Anonymous'}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center">
+                      <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="text-sm text-gray-500">Status</div>
+                      <div className="font-medium text-gray-900">{daysLeft > 0 ? 'Active' : 'Ended'}</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="lg:col-span-4">
-              <div className="bg-white rounded-3xl p-8 shadow-lg sticky top-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">Make a Donation</h3>
-                {error && (
-                  <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl">
-                    {error}
-                  </div>
-                )}
+            {/* Right Column - Donation Form */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-xl shadow-sm p-8 sticky top-8">
+                <h3 className="text-2xl font-bold text-gray-900 mb-6">Support this campaign</h3>
                 <form onSubmit={handleDonate} className="space-y-6">
                   <div>
                     <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
@@ -225,16 +225,19 @@ export default function CampaignDetails() {
                         id="amount"
                         value={donationAmount}
                         onChange={(e) => setDonationAmount(e.target.value)}
-                        className="w-full pl-10 pr-4 py-4 text-lg border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                        className="w-full pl-10 pr-4 py-4 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                         placeholder="Enter amount"
                         min="1"
-                        required
+                        step="1"
                       />
                     </div>
                   </div>
+                  {error && (
+                    <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">{error}</div>
+                  )}
                   <button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-semibold py-4 rounded-xl transition duration-300 text-lg"
+                    className="w-full bg-indigo-600 text-white py-4 rounded-xl hover:bg-indigo-700 transition-colors duration-200 font-medium text-lg"
                   >
                     Donate Now
                   </button>

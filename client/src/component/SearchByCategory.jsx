@@ -56,23 +56,29 @@ const categories = [
 
 export default function SearchByCategory() {
   return (
-    <section className="py-16 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Search by Category</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-6 justify-items-center">
-          {categories.map((category) => (
-            <a
-              key={category.name}
-              href={category.link}
-              className="flex flex-col items-center group"
+    <section className="w-full py-16 bg-white">
+      <div className="max-w-7xl mx-auto px-4">
+        <h2 className="text-4xl font-bold text-center mb-2">Browse by Category</h2>
+        <p className="text-center text-gray-600 mb-10 text-lg">
+          Discover campaigns that align with causes you care about
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+          {categories.map((cat) => (
+            <div
+              key={cat.name}
+              className="bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col items-center justify-center py-10 px-4 transition hover:shadow-lg"
             >
-              <span className="bg-sky-100 group-hover:bg-sky-200 text-sky-600 rounded-full p-4 mb-2 transition">
-                <category.icon className="w-8 h-8" />
-              </span>
-              <span className="text-gray-700 font-medium group-hover:text-sky-600 transition">
-                {category.name}
-              </span>
-            </a>
+              <div className="bg-indigo-100 rounded-full p-5 mb-4">
+                <cat.icon className="w-10 h-10 text-sky-500" />
+              </div>
+              <div className="font-semibold text-lg mb-1 text-gray-900">{cat.name}</div>
+              <a
+                href={cat.link}
+                className="text-sky-600 text-sm font-medium hover:underline"
+              >
+                Browse Campaigns
+              </a>
+            </div>
           ))}
         </div>
       </div>
