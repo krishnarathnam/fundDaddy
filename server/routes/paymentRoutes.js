@@ -1,27 +1,24 @@
-// backend/routes/paymentRoutes.js
 const express = require("express");
-const Razorpay = require("razorpay");
 const router = express.Router();
+const Stripe = require("stripe");
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY); 
 
-const razorpay = new Razorpay({
-  key_id: "YOUR_KEY_ID",
-  key_secret: "YOUR_KEY_SECRET",
-});
-
-router.post("/orders", async (req, res) => {
+router.post("/create-payment-intent", async (req, res) => {
   try {
-    const { amount, currency = "INR", receipt } = req.body;
+    const { amount } = req.body;
+    console.log("🔥 Create PaymentIntent request received:", amount);
 
-    const options = {
-      amount: amount * 100, // amount in paise
-      currency,
-      receipt,
-    };
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amount * 100, // ₹500 = 50000 paise
+      currency: "inr",
+      payment_method_types: ["card"],
+    });
 
-    const order = await razorpay.orders.create(options);
-    res.json({ orderId: order.id });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.log("✅ PaymentIntent created");
+    res.send({ clientSecret: paymentIntent.client_secret });
+  } catch (error) {
+    console.error("❌ Stripe error:", error.message);
+    res.status(500).send({ error: error.message });
   }
 });
 

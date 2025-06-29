@@ -16,8 +16,10 @@ app.use("/api/campaigns", campaignRoutes);
 const adminRoutes = require("./routes/adminroute.js");
 app.use("/api/admin", adminRoutes);
 
+
 const paymentRoutes = require("./routes/paymentRoutes");
 app.use("/api/payment", paymentRoutes);
+
 
 
 

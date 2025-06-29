@@ -213,35 +213,48 @@ export default function CampaignDetails() {
             <div className="lg:col-span-1">
               <div className="bg-white rounded-xl shadow-sm p-8 sticky top-8">
                 <h3 className="text-2xl font-bold text-gray-900 mb-6">Support this campaign</h3>
-                <form onSubmit={handleDonate} className="space-y-6">
-                  <div>
-                    <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
-                      Donation Amount
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-lg">$</span>
-                      <input
-                        type="number"
-                        id="amount"
-                        value={donationAmount}
-                        onChange={(e) => setDonationAmount(e.target.value)}
-                        className="w-full pl-10 pr-4 py-4 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                        placeholder="Enter amount"
-                        min="1"
-                        step="1"
-                      />
-                    </div>
-                  </div>
-                  {error && (
-                    <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">{error}</div>
-                  )}
-                  <button
-                    type="submit"
-                    className="w-full bg-indigo-600 text-white py-4 rounded-xl hover:bg-indigo-700 transition-colors duration-200 font-medium text-lg"
-                  >
-                    Donate Now
-                  </button>
-                </form>
+                <div className="space-y-6">
+  <div>
+    <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
+      Donation Amount
+    </label>
+    <div className="relative">
+      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-lg">$</span>
+      <input
+        type="number"
+        id="amount"
+        value={donationAmount}
+        onChange={(e) => setDonationAmount(e.target.value)}
+        className="w-full pl-10 pr-4 py-4 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        placeholder="Enter amount"
+        min="1"
+        step="1"
+      />
+    </div>
+  </div>
+  {error && (
+    <div className="text-red-600 text-sm bg-red-50 p-3 rounded-lg">{error}</div>
+  )}
+  <button
+    type="button"
+    onClick={() => {
+      if (!donationAmount || donationAmount <= 0) {
+        setError("Please enter a valid donation amount");
+      } else {
+        navigate("/donate", {
+          state: {
+            campaignId: campaign._id,
+            amount: Number(donationAmount),
+          },
+        });
+      }
+    }}
+    className="w-full bg-indigo-600 text-white py-4 rounded-xl hover:bg-indigo-700 transition-colors duration-200 font-medium text-lg"
+  >
+    Donate Now
+  </button>
+</div>
+
               </div>
             </div>
           </div>
