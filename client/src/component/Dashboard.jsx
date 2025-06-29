@@ -141,11 +141,11 @@ const Dashboard = () => {
                       {campaign.category}
                     </span>
                     <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                      new Date(campaign.endDate) > new Date() 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
+                      campaign.status === 'ended' || campaign.raisedAmount >= campaign.targetAmount
+                        ? 'bg-red-100 text-red-800' 
+                        : 'bg-green-100 text-green-800'
                     }`}>
-                      {new Date(campaign.endDate) > new Date() ? 'Active' : 'Ended'}
+                      {campaign.status === 'ended' || campaign.raisedAmount >= campaign.targetAmount ? 'Ended' : 'Active'}
                     </span>
                   </div>
                   <h2 className="text-xl font-semibold mb-2 text-gray-900 group-hover:text-blue-600 transition-colors duration-200">{campaign.title}</h2>

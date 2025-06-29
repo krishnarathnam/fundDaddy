@@ -127,12 +127,17 @@ export default function AllCampaigns() {
                 {/* Status Badge */}
                 <div className="absolute top-4 right-4">
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    campaign.status === 'active' ? 'bg-green-100 text-green-800' :
-                    campaign.status === 'successful' ? 'bg-blue-100 text-blue-800' :
-                    campaign.status === 'failed' ? 'bg-red-100 text-red-800' :
-                    'bg-yellow-100 text-yellow-800'
+                    campaign.raisedAmount >= campaign.targetAmount || campaign.status === 'ended'
+                      ? 'bg-red-100 text-red-800'
+                      : new Date(campaign.endDate) > new Date()
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-yellow-100 text-yellow-800'
                   }`}>
-                    {campaign.status ? campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1) : 'Pending'}
+                    {campaign.raisedAmount >= campaign.targetAmount || campaign.status === 'ended'
+                      ? 'Ended'
+                      : new Date(campaign.endDate) > new Date()
+                        ? 'Active'
+                        : 'Ended'}
                   </span>
                 </div>
               </div>
